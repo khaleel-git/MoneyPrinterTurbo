@@ -250,7 +250,14 @@ pip install -r requirements.txt
 
 在 CMD 中也可以执行 `webui.bat`。
 `webui.bat` 会优先使用项目 `.venv` 或一键包内置 Python；如果没有找到项目 Python，但已安装 `uv`，会自动切换为 `uv run streamlit`。
+如果本机安装了 `cloudflared`，启动时还会自动创建一个临时 Cloudflare Tunnel，并绑定到当前实际可用的 WebUI 端口。隧道日志会写入 `storage/tasks/` 目录。
+如需关闭自动隧道，可以在启动前执行 `set MPT_CLOUDFLARE_TUNNEL=0`。
 如需允许局域网内其他设备访问 WebUI，可以先执行 `set MPT_WEBUI_HOST=0.0.0.0`，再运行 `webui.bat`。
+
+#### ③ 通过 Cloudflare Tunnel 暴露站点（可选）
+
+如果你想把本地 WebUI 暴露到公网，最简单的方式就是直接安装 `cloudflared` 后启动 `webui.bat`，它会自动拉起隧道。
+如果你需要固定域名、长期隧道或自定义 Cloudflare 配置，仍然可以按 `cloudflared` 的常规方式手动创建和运行隧道。
 
 ###### MacOS or Linux
 

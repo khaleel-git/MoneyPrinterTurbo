@@ -248,6 +248,36 @@ You can also run `webui.bat` in CMD.
 `webui.bat` prefers the project `.venv` or bundled Python from the portable package. If no project Python is found but `uv` is installed, it automatically falls back to `uv run streamlit`.
 To allow other devices on your LAN to access the WebUI, run `set MPT_WEBUI_HOST=0.0.0.0` before running `webui.bat`.
 
+#### ③ Expose the site with Cloudflare Tunnel (optional)
+
+If you want to expose the local WebUI to the public Internet, you can use `cloudflared`:
+
+```powershell
+cloudflared tunnel login
+cloudflared tunnel create moneyprinter
+cloudflared tunnel route dns moneyprinter videos.khaleel.eu
+```
+
+After `cloudflared tunnel create moneyprinter` finishes, it prints the tunnel ID and creates the matching `TUNNEL_ID.json` credential file under `%USERPROFILE%\.cloudflared\`.
+
+Then create `%USERPROFILE%\.cloudflared\config.yml`:
+
+```yml
+tunnel: <TUNNEL_ID>
+credentials-file: C:\Users\YourName\.cloudflared\<TUNNEL_ID>.json
+
+ingress:
+  - hostname: videos.khaleel.eu
+    service: http://127.0.0.1:8501
+  - service: http_status:404
+```
+
+Finally run:
+
+```powershell
+cloudflared tunnel run moneyprinter
+```
+
 ###### MacOS or Linux
 
 ```shell

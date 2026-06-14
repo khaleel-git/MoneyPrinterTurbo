@@ -48,5 +48,29 @@ if not "%SELECTED_WEBUI_PORT%"=="%MPT_WEBUI_PORT%" (
 )
 set "MPT_WEBUI_PORT=%SELECTED_WEBUI_PORT%"
 
+if not "%MPT_CLOUDFLARE_TUNNEL%"=="0" (
+    where cloudflared >nul 2>nul
+    if not errorlevel 1 (
+        if not exist "%CURRENT_DIR%\storage\tasks" mkdir "%CURRENT_DIR%\storage\tasks"
+        if not exist "%CURRENT_DIR%\scripts\run-cloudflared.cmd" (
+            echo ***** Cloudflare helper script is missing: %CURRENT_DIR%\scripts\run-cloudflared.cmd *****
+        ) else (
+            if exist "%USERPROFILE%\.cloudflared\config.yml" (
+                echo ***** Starting configured Cloudflare Tunnel from %USERPROFILE%\.cloudflared\config.yml *****
+            ) else (
+                echo ***** Starting Cloudflare quick tunnel to http://%MPT_WEBUI_HOST%:%MPT_WEBUI_PORT% *****
+            )
+            start "" /b "%CURRENT_DIR%\scripts\run-cloudflared.cmd" "%CURRENT_DIR%\storage\tasks\cloudflared-webui.log"
+        )
+    ) else (
+        echo ***** cloudflared was not found, skipping Cloudflare Tunnel. *****
+    )
+)
+
 echo ***** WebUI address: http://%MPT_WEBUI_HOST%:%MPT_WEBUI_PORT% *****
 %STREAMLIT_CMD% run .\webui\Main.py --server.address=%MPT_WEBUI_HOST% --server.port=%MPT_WEBUI_PORT% --browser.serverAddress=%MPT_WEBUI_HOST% --browser.gatherUsageStats=False --server.showEmailPrompt=False --server.enableCORS=True
+
+if not "%MPT_WEBUI_HOLD_OPEN%"=="0" (
+    echo ***** WebUI process ended. Press any key to close this window. *****
+    pause >nul
+)

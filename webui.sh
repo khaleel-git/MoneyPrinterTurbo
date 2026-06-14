@@ -69,6 +69,17 @@ fi
 
 MPT_WEBUI_PORT="$SELECTED_WEBUI_PORT"
 
+if [ "${MPT_CLOUDFLARE_TUNNEL:-1}" != "0" ] && command -v cloudflared >/dev/null 2>&1; then
+  CLOUDFLARED_LOG="$CURRENT_DIR/storage/tasks/cloudflared-webui.log"
+  mkdir -p "$CURRENT_DIR/storage/tasks"
+  echo "***** Starting Cloudflare Tunnel to http://$MPT_WEBUI_HOST:$MPT_WEBUI_PORT *****"
+  cloudflared tunnel --url "http://$MPT_WEBUI_HOST:$MPT_WEBUI_PORT" >"$CLOUDFLARED_LOG" 2>&1 &
+  CLOUDFLARED_PID=$!
+  trap 'kill "$CLOUDFLARED_PID" >/dev/null 2>&1' EXIT INT TERM
+elif [ "${MPT_CLOUDFLARE_TUNNEL:-1}" != "0" ]; then
+  echo "***** cloudflared was not found, skipping Cloudflare Tunnel. *****"
+fi
+
 echo "***** WebUI address: http://$MPT_WEBUI_HOST:$MPT_WEBUI_PORT *****"
 "$@" run "$CURRENT_DIR/webui/Main.py" \
   --server.address="$MPT_WEBUI_HOST" \
