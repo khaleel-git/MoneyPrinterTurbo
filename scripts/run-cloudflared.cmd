@@ -15,7 +15,7 @@ echo ***** WebUI is ready. Starting Cloudflare Tunnel... *****
 
 if exist "%CLOUDFLARED_CONFIG%" (
     echo ***** Using config: %CLOUDFLARED_CONFIG% *****
-    cloudflared tunnel run --config "%CLOUDFLARED_CONFIG%" moneyprinter
+    cloudflared tunnel --config "%CLOUDFLARED_CONFIG%" run moneyprinter
 ) else (
     echo ***** No config.yml found. Starting quick tunnel... *****
     cloudflared tunnel --url "http://127.0.0.1:%WEBUI_PORT%" --no-autoupdate
