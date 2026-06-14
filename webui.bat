@@ -60,7 +60,7 @@ if not "%MPT_CLOUDFLARE_TUNNEL%"=="0" (
             ) else (
                 echo ***** Starting Cloudflare quick tunnel to http://%MPT_WEBUI_HOST%:%MPT_WEBUI_PORT% *****
             )
-            start "" /b "%CURRENT_DIR%\scripts\run-cloudflared.cmd" "%CURRENT_DIR%\storage\tasks\cloudflared-webui.log"
+            start "Cloudflare Tunnel" "%CURRENT_DIR%\scripts\run-cloudflared.cmd"
         )
     ) else (
         echo ***** cloudflared was not found, skipping Cloudflare Tunnel. *****
