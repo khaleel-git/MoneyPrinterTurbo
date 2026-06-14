@@ -2,11 +2,11 @@
 setlocal
 
 set "CLOUDFLARED_CONFIG=%USERPROFILE%\.cloudflared\config.yml"
-set "WEBUI_URL=http://127.0.0.1:8501"
+set "WEBUI_PORT=8501"
 
-echo ***** Waiting for WebUI to be ready at %WEBUI_URL% *****
+echo ***** Waiting for WebUI on port %WEBUI_PORT%... *****
 :wait_loop
-powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $r = Invoke-WebRequest -Uri '%WEBUI_URL%' -UseBasicParsing -TimeoutSec 2; exit 0 } catch { exit 1 }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $t = New-Object Net.Sockets.TcpClient; $t.Connect('127.0.0.1', %WEBUI_PORT%); $t.Close(); exit 0 } catch { exit 1 }" >nul 2>&1
 if errorlevel 1 (
     timeout /t 2 /nobreak >nul
     goto wait_loop
@@ -15,8 +15,8 @@ echo ***** WebUI is ready. Starting Cloudflare Tunnel... *****
 
 if exist "%CLOUDFLARED_CONFIG%" (
     echo ***** Using config: %CLOUDFLARED_CONFIG% *****
-    cloudflared tunnel run --config "%CLOUDFLARED_CONFIG%"
+    cloudflared tunnel run --config "%CLOUDFLARED_CONFIG%" moneyprinter
 ) else (
-    echo ***** No config.yml found. Starting quick tunnel to %WEBUI_URL% *****
-    cloudflared tunnel --url "%WEBUI_URL%" --no-autoupdate
+    echo ***** No config.yml found. Starting quick tunnel... *****
+    cloudflared tunnel --url "http://127.0.0.1:%WEBUI_PORT%" --no-autoupdate
 )
